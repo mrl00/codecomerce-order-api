@@ -34,7 +34,7 @@ Package manager is **pnpm**, not npm.
 - **`client_id` is never passed in request body for orders** — it is injected from the JWT `subscriber` claim in the controller (`src/orders/orders.controller.ts:28`).
 - **No DELETE endpoint for orders** — intentional design decision.
 - **`nr_idx` column** on `Order` entity is defined but never populated.
-- **`validateProductIds` is duplicated** in both `ProductsService` and `OrdersService`. If adding new validation, consider consolidating.
+- **`validateProductIds` is consolidated** — `OrdersService` injects `ProductsService` and calls `validateIds()` (no duplication).
 
 ## Conventions
 

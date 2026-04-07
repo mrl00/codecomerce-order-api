@@ -28,7 +28,7 @@
 
 - [x] Move DB credentials to environment variables (currently hardcoded in `app.module.ts`)
 - [x] Move JWT secret to environment variable (currently `'secret'` in `auth.module.ts`)
-- [ ] Consolidate duplicated `validateProductIds` — exists in both `ProductsService` and `OrdersService`
+- [x] Consolidate duplicated `validateProductIds` — `OrdersService` now injects `ProductsService` and calls `validateIds()`
 - [ ] Add `@UsePipes` or DTO validation to `POST /auth/login` (currently accepts any body shape)
 - [ ] Add password hashing (currently plaintext comparison in `auth.service.ts`)
 - [ ] Populate `nr_idx` column on Order entity (defined but never set)

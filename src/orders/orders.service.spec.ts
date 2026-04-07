@@ -9,11 +9,26 @@ const mockOrderRepo = {
   findOne: jest.fn(),
   remove: jest.fn(),
 };
-const mockOrderItemRepo = { create: jest.fn(), save: jest.fn(), delete: jest.fn() };
-const mockProductRepo = { create: jest.fn(), save: jest.fn(), find: jest.fn(), findOneBy: jest.fn() };
+const mockOrderItemRepo = {
+  create: jest.fn(),
+  save: jest.fn(),
+  delete: jest.fn(),
+};
+const mockProductRepo = {
+  create: jest.fn(),
+  save: jest.fn(),
+  find: jest.fn(),
+  findOneBy: jest.fn(),
+};
+const mockProductsService = { validateIds: jest.fn() };
 
 function makeService(): OrdersService {
-  return new OrdersService(mockOrderRepo as any, mockOrderItemRepo as any, mockProductRepo as any);
+  return new OrdersService(
+    mockOrderRepo as any,
+    mockOrderItemRepo as any,
+    mockProductRepo as any,
+    mockProductsService as any,
+  );
 }
 
 describe('OrdersService', () => {
@@ -24,9 +39,11 @@ describe('OrdersService', () => {
       const orders = [{ pk_order: 'order-1' }];
       mockOrderRepo.find.mockResolvedValue(orders);
 
-      const result = await makeService().findAll();
+      const result = await makeService().findAll('client-1');
 
       expect(mockOrderRepo.find).toHaveBeenCalledWith({
+        where: { fk_client: 'client-1' },
+        order: { ts_created_at: 'DESC' },
         relations: ['order_items', 'order_items.product'],
       });
       expect(result).toEqual(orders);
@@ -38,10 +55,11 @@ describe('OrdersService', () => {
       const order = { pk_order: 'order-1' };
       mockOrderRepo.findOne.mockResolvedValue(order);
 
-      const result = await makeService().findOne('order-1');
+      const result = await makeService().findOne('order-1', 'client-1');
 
       expect(mockOrderRepo.findOne).toHaveBeenCalledWith({
-        where: { pk_order: 'order-1' },
+        where: { pk_order: 'order-1', fk_client: 'client-1' },
+        order: { ts_created_at: 'DESC' },
         relations: ['order_items', 'order_items.product'],
       });
       expect(result).toEqual(order);
@@ -50,9 +68,9 @@ describe('OrdersService', () => {
     it('should throw NotFoundException when order does not exist', async () => {
       mockOrderRepo.findOne.mockResolvedValue(null);
 
-      await expect(makeService().findOne('nonexistent')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        makeService().findOne('nonexistent', 'client-1'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -69,9 +87,13 @@ describe('OrdersService', () => {
     });
 
     it('should update status', async () => {
-      const result = await makeService().updateStatus('order-1', {
-        status: 'COMPLETED',
-      });
+      const result = await makeService().updateStatus(
+        'order-1',
+        {
+          status: 'COMPLETED',
+        },
+        'client-1',
+      );
 
       expect(result.tx_status).toBe('COMPLETED');
     });
@@ -79,7 +101,11 @@ describe('OrdersService', () => {
     it('should throw NotFoundException for unknown order', async () => {
       mockOrderRepo.findOne.mockResolvedValue(null);
       await expect(
-        makeService().updateStatus('nonexistent', { status: 'COMPLETED' }),
+        makeService().updateStatus(
+          'nonexistent',
+          { status: 'COMPLETED' },
+          'client-1',
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
