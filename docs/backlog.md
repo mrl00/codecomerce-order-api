@@ -46,8 +46,8 @@
 ## Features
 
 - [x] Add user entity with TypeORM
-- [ ] Add user registration endpoint (`POST /auth/register`)
-- [ ] Product search/filtering (by name, price range)
+- [x] Add user registration endpoint (`POST /auth/register`)
+- [x] Product search/filtering (by name, price range)
 - [ ] Pagination for product and order list endpoints
 - [ ] Order cancellation logic (prevent cancelling COMPLETED orders)
 - [x] Soft delete for products (instead of hard delete)
