@@ -41,7 +41,7 @@
 - [x] Auth e2e tests (`test/auth.e2e-spec.ts`) — 7 tests covering login success, wrong password, missing fields
 - [x] AuthGuard unit tests (`src/auth/auth.guard.spec.ts`) — 6 tests covering valid token, missing header, wrong scheme, failed verification
 - [x] Unit tests for `AuthService` (login success, login failure)
-- [ ] Unit tests for order creation (total calculation, missing products)
+- [x] Unit tests for order creation (total calculation, missing products)
 
 ## Features
 

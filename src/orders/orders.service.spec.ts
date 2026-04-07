@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 
 const mockOrderRepo = {
@@ -33,6 +33,75 @@ function makeService(): OrdersService {
 
 describe('OrdersService', () => {
   beforeEach(() => jest.clearAllMocks());
+
+  describe('create', () => {
+    it('should create order with auto-calculated total from product prices', async () => {
+      const dto = {
+        client_id: 'client-1',
+        items: [
+          { product_id: 'p1', quantity: 2 },
+          { product_id: 'p2', quantity: 1 },
+        ],
+      };
+
+      const products = [
+        { pk_product: 'p1', nr_price: 100 },
+        { pk_product: 'p2', nr_price: 250 },
+      ];
+      mockProductsService.validateIds.mockResolvedValue(undefined);
+      mockProductRepo.find.mockResolvedValue(products);
+
+      const savedOrder = { pk_order: 'order-1' };
+      mockOrderRepo.create.mockReturnValue({ pk_order: 'order-1' });
+      mockOrderRepo.save.mockImplementation(async (o) => ({
+        ...o,
+        pk_order: 'order-1',
+      }));
+      mockOrderItemRepo.create.mockImplementation((data) => data);
+      mockOrderItemRepo.save.mockResolvedValue(undefined);
+      mockOrderRepo.findOne.mockResolvedValue({
+        pk_order: 'order-1',
+        fk_client: 'client-1',
+        nr_total: 450,
+        tx_status: 'PENDING',
+        order_items: [
+          { product: products[0], nr_quantity: 2, nr_price: 100 },
+          { product: products[1], nr_quantity: 1, nr_price: 250 },
+        ],
+      });
+
+      const result = await makeService().create(dto);
+
+      expect(mockProductsService.validateIds).toHaveBeenCalledWith([
+        'p1',
+        'p2',
+      ]);
+      expect(mockOrderRepo.create).toHaveBeenCalledWith({
+        fk_client: 'client-1',
+        nr_total: 450,
+        tx_status: 'PENDING',
+      });
+      expect(result!.nr_total).toBe(450);
+      expect(result!.tx_status).toBe('PENDING');
+    });
+
+    it('should throw when products do not exist', async () => {
+      const dto = {
+        client_id: 'client-1',
+        items: [{ product_id: 'nonexistent', quantity: 1 }],
+      };
+
+      mockProductsService.validateIds.mockRejectedValue(
+        new BadRequestException('Products not found: nonexistent'),
+      );
+
+      await expect(makeService().create(dto)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockOrderRepo.create).not.toHaveBeenCalled();
+      expect(mockOrderRepo.save).not.toHaveBeenCalled();
+    });
+  });
 
   describe('findAll', () => {
     it('should return all orders with relations', async () => {
