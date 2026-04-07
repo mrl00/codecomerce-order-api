@@ -1,16 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
-import { AuthModule } from '../src/auth/auth.module';
-import { AuthService } from '../src/auth/auth.service';
-import { AuthController } from '../src/auth/auth.controller';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/auth/entities/user.entity';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
-  let authService: AuthService;
+  let userRepo: Repository<User>;
+
+  const adminId = 'a65d4b98-80c6-4b59-b59f-c15a983e831a';
+  const userId = '60784d36-51ef-43ee-81b1-34b3a9e89590';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -23,7 +26,26 @@ describe('Auth (e2e)', () => {
     );
     await app.init();
 
-    authService = moduleFixture.get<AuthService>(AuthService);
+    userRepo = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
+  });
+
+  beforeEach(async () => {
+    await userRepo.query('TRUNCATE tb_user CASCADE');
+    const hashedPassword = await bcrypt.hash('secret', 10);
+    await userRepo.save(
+      userRepo.create({
+        pk_user: adminId,
+        tx_username: 'admin',
+        tx_password: hashedPassword,
+      }),
+    );
+    await userRepo.save(
+      userRepo.create({
+        pk_user: userId,
+        tx_username: 'user',
+        tx_password: hashedPassword,
+      }),
+    );
   });
 
   afterAll(async () => {
