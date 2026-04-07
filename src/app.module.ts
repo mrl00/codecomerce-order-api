@@ -13,14 +13,14 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'qwert',
-      database: 'nestjs',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'qwert',
+      database: process.env.DB_DATABASE || 'nestjs',
       entities: [Order, OrderItem, Product],
-      synchronize: true,
-      logging: true,
+      synchronize: process.env.DB_SYNCHRONIZE !== 'false',
+      logging: process.env.DB_LOGGING === 'true',
     }),
     OrdersModule,
     ProductsModule,
@@ -29,4 +29,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

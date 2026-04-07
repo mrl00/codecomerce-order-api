@@ -15,7 +15,7 @@ Package manager is **pnpm**, not npm.
 
 ## Database
 
-- Connection is hardcoded in `src/app.module.ts` — no `.env` file. Host `localhost`, user `postgres`, password `qwert`, db `nestjs`.
+- Connection configured via environment variables in `src/app.module.ts`. Defaults: `DB_HOST=localhost`, `DB_PORT=5432`, `DB_USERNAME=postgres`, `DB_PASSWORD=qwert`, `DB_DATABASE=nestjs`, `DB_SYNCHRONIZE=true`, `DB_LOGGING=false`.
 - `synchronize: true` — schema is auto-generated on startup. Do not add manual migrations.
 - Run `pnpm run fixture` to seed sample data (drops and recreates tables).
 
