@@ -1,4 +1,10 @@
-import { IsNull } from 'typeorm';
+import {
+  IsNull,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  Like,
+} from 'typeorm';
 
 import { NotFoundException } from '@nestjs/common';
 import { ProductsService } from './products.service';
@@ -59,6 +65,60 @@ describe('ProductsService', () => {
         where: { ts_deleted_at: IsNull() },
       });
       expect(result).toEqual(products);
+    });
+
+    it('should filter by name using LIKE', async () => {
+      mockRepo.find.mockResolvedValue([
+        { pk_product: 'id-1', tx_name: 'Widget' },
+      ]);
+
+      await makeService().findAll({ name: 'wid' });
+
+      const where = mockRepo.find.mock.calls[0][0].where;
+      expect(where.ts_deleted_at).toEqual(IsNull());
+      expect(where.tx_name).toEqual(Like('%wid%'));
+    });
+
+    it('should filter by minPrice', async () => {
+      mockRepo.find.mockResolvedValue([]);
+
+      await makeService().findAll({ minPrice: 100 });
+
+      const where = mockRepo.find.mock.calls[0][0].where;
+      expect(where.nr_price).toEqual(MoreThanOrEqual(100));
+    });
+
+    it('should filter by maxPrice', async () => {
+      mockRepo.find.mockResolvedValue([]);
+
+      await makeService().findAll({ maxPrice: 500 });
+
+      const where = mockRepo.find.mock.calls[0][0].where;
+      expect(where.nr_price).toEqual(LessThanOrEqual(500));
+    });
+
+    it('should filter by price range using Between', async () => {
+      mockRepo.find.mockResolvedValue([]);
+
+      await makeService().findAll({ minPrice: 100, maxPrice: 500 });
+
+      const where = mockRepo.find.mock.calls[0][0].where;
+      expect(where.nr_price).toEqual(Between(100, 500));
+    });
+
+    it('should combine name and price filters', async () => {
+      mockRepo.find.mockResolvedValue([]);
+
+      await makeService().findAll({
+        name: 'widget',
+        minPrice: 50,
+        maxPrice: 200,
+      });
+
+      const where = mockRepo.find.mock.calls[0][0].where;
+      expect(where.ts_deleted_at).toEqual(IsNull());
+      expect(where.tx_name).toEqual(Like('%widget%'));
+      expect(where.nr_price).toEqual(Between(50, 200));
     });
   });
 
