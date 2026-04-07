@@ -4,7 +4,6 @@
 
 - [x] Product entity with TypeORM (`tb_product`, PK `pk_product`)
 - [x] Product CRUD (service, controller, module, DTOs with validation)
-- [x] Product hurl integration tests (`tests/products.hurl`)
 - [x] Order + OrderItem entities with nomenclature (`tb_order`, `tb_order_item`)
 - [x] Order CRUD with product validation (`validateProductIds`)
 - [x] Order status update (PENDING → COMPLETED/CANCELLED)
@@ -18,11 +17,14 @@
 - [x] README rewrite with API docs, configuration table, naming convention
 - [x] CLAUDE.md project documentation
 - [x] Auth module with JWT (`POST /auth/login`, `AuthGuard`)
+- [x] Populate `nr_idx` column on Order entity — added `@Generated('increment')` decorator for auto-increment
 
 ## Bug Fixes
 
 - [x] Fix `AuthGuard` null header crash — `request.headers['authorization']` can be `undefined`, causing `.split()` to throw (`src/auth/auth.guard.ts:31`)
 - [x] Fix order controller `findOne` — `client_id` parameter is always `undefined`, should use `@Req() req: Request` and `req['user'].subscriber` (`src/orders/orders.controller.ts:39`)
+- [x] Fix AuthModule dependency injection — export `JwtModule` so `AuthGuard` can resolve `JwtService` in other modules
+- [x] Fix e2e test isolation — set `maxWorkers: 1` to prevent parallel test files from truncating each other's data
 
 ## Improvements
 
@@ -31,23 +33,21 @@
 - [x] Consolidate duplicated `validateProductIds` — `OrdersService` now injects `ProductsService` and calls `validateIds()`
 - [x] Add DTO validation to `POST /auth/login` — created `LoginDto` with `@IsString()` and `@IsNotEmpty()` decorators
 - [x] Add password hashing (using bcrypt in `auth.service.ts`)
-- [x] Populate `nr_idx` column on Order entity — added `@Generated('increment')` decorator for auto-increment
-- [ ] Add user registration endpoint (`POST /auth/register`)
-- [ ] Add user entity with TypeORM (currently hardcoded array in `auth.service.ts`)
 
 ## Testing
 
-- [ ] Orders hurl integration tests (`tests/orders.hurl`)
-- [ ] Auth hurl integration tests (`tests/auth.hurl`)
+- [x] Product e2e tests (`test/products.e2e-spec.ts`) — 12 tests covering full CRUD, auth enforcement, validation errors, 404 handling
+- [x] Orders e2e tests (`test/orders.e2e-spec.ts`) — 13 tests covering creation with auto-calculated total, cross-user isolation, status updates
+- [x] Auth e2e tests (`test/auth.e2e-spec.ts`) — 7 tests covering login success, wrong password, missing fields
+- [x] AuthGuard unit tests (`src/auth/auth.guard.spec.ts`) — 6 tests covering valid token, missing header, wrong scheme, failed verification
 - [ ] Unit tests for `AuthService` (login success, login failure)
-- [ ] Unit tests for `AuthGuard` (valid token, missing header, invalid token)
 - [ ] Unit tests for order creation (total calculation, missing products)
-- [ ] Enable e2e test suite (`test/jest-e2e.json` exists but unused)
 
 ## Features
 
+- [ ] Add user registration endpoint (`POST /auth/register`)
+- [ ] Add user entity with TypeORM (currently hardcoded array in `auth.service.ts`)
 - [ ] Categories module (entity, service, controller, DTOs, validation)
-- [ ] Categories hurl integration tests
 - [ ] Product search/filtering (by name, price range)
 - [ ] Pagination for product and order list endpoints
 - [ ] Order cancellation logic (prevent cancelling COMPLETED orders)
