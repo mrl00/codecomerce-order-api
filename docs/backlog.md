@@ -45,9 +45,8 @@
 
 ## Features
 
-- [ ] Add user registration endpoint (`POST /auth/register`)
 - [ ] Add user entity with TypeORM (currently hardcoded array in `auth.service.ts`)
-- [ ] Categories module (entity, service, controller, DTOs, validation)
+- [ ] Add user registration endpoint (`POST /auth/register`)
 - [ ] Product search/filtering (by name, price range)
 - [ ] Pagination for product and order list endpoints
 - [ ] Order cancellation logic (prevent cancelling COMPLETED orders)
