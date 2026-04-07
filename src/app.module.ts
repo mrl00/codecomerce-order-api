@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
@@ -11,16 +12,13 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'qwert',
-      database: process.env.DB_DATABASE || 'nestjs',
+      url: process.env.DATABASE_URL,
       entities: [Order, OrderItem, Product],
-      synchronize: process.env.DB_SYNCHRONIZE !== 'false',
-      logging: process.env.DB_LOGGING === 'true',
+      synchronize: true,
+      logging: false,
     }),
     OrdersModule,
     ProductsModule,
