@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Generated,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
@@ -12,6 +18,7 @@ export class Order {
   @PrimaryGeneratedColumn('uuid', { name: 'pk_order' })
   pk_order: string;
 
+  @Generated('increment')
   @Column({ name: 'nr_idx' })
   nr_idx: number;
 
@@ -39,6 +46,7 @@ export class Order {
   toJSON() {
     return {
       id: this.pk_order,
+      idx: this.nr_idx,
       client_id: this.fk_client,
       total: this.nr_total,
       status: this.tx_status,
