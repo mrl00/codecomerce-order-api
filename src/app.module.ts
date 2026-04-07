@@ -9,6 +9,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
 import { AuthModule } from './auth/auth.module';
+import { User } from './auth/entities/user.entity';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AuthModule } from './auth/auth.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [Order, OrderItem, Product],
+      entities: [Order, OrderItem, Product, User],
       synchronize: true,
       logging: false,
     }),
