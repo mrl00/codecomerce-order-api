@@ -10,7 +10,7 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly repo: Repository<Product>,
-  ) { }
+  ) {}
 
   create(dto: CreateProductDto) {
     const product = this.repo.create({

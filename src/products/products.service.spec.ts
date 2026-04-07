@@ -143,15 +143,17 @@ describe('ProductsService', () => {
         { pk_product: 'id-2' },
       ]);
 
-      await expect(makeService().validateIds(['id-1', 'id-2'])).resolves.toBeUndefined();
+      await expect(
+        makeService().validateIds(['id-1', 'id-2']),
+      ).resolves.toBeUndefined();
     });
 
     it('should throw NotFoundException listing missing IDs', async () => {
       mockRepo.find.mockResolvedValue([{ pk_product: 'id-1' }]);
 
-      await expect(makeService().validateIds(['id-1', 'id-2', 'id-3'])).rejects.toThrow(
-        'Products not found: id-2, id-3',
-      );
+      await expect(
+        makeService().validateIds(['id-1', 'id-2', 'id-3']),
+      ).rejects.toThrow('Products not found: id-2, id-3');
     });
 
     it('should do nothing for empty ID list', async () => {

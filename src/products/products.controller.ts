@@ -19,10 +19,13 @@ import { AuthGuard } from 'src/auth/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  async create(@Body() createProductDto: CreateProductDto, @Res() res: Response) {
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @Res() res: Response,
+  ) {
     const product = await this.productsService.create(createProductDto);
     res.status(HttpStatus.CREATED).json(product);
   }
@@ -40,7 +43,11 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Res() res: Response) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @Res() res: Response,
+  ) {
     const product = await this.productsService.update(id, updateProductDto);
     res.status(HttpStatus.OK).json(product);
   }

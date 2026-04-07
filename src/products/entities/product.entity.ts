@@ -11,7 +11,7 @@ export class Product {
   @Column({ type: 'text', name: 'tx_description', nullable: true })
   tx_description: string;
 
-  @Column({ name: 'tx_image_url', nullable: true, })
+  @Column({ name: 'tx_image_url', nullable: true })
   tx_image_url: string;
 
   @Column({ type: 'int', name: 'nr_price' })
