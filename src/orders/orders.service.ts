@@ -6,6 +6,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/create-order.dto';
 import { Product } from 'src/products/entities/product.entity';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class OrdersService {
@@ -16,11 +17,12 @@ export class OrdersService {
     private readonly orderItemRepo: Repository<OrderItem>,
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
-  ) { }
+    private readonly productsService: ProductsService,
+  ) {}
 
   async create(dto: CreateOrderDto & { client_id: string }) {
     const productIds = dto.items.map((item) => item.product_id);
-    await this.validateProductIds(productIds);
+    await this.productsService.validateIds(productIds);
 
     const products = await this.productRepo.find({
       where: { pk_product: In(productIds) },
@@ -82,18 +84,5 @@ export class OrdersService {
     order.tx_status = dto.status as OrderStatus;
     order.ts_updated_at = new Date();
     return this.orderRepo.save(order);
-  }
-
-  private async validateProductIds(ids: string[]) {
-    if (ids.length === 0) return;
-    const found = await this.productRepo.find({
-      select: { pk_product: true },
-      where: { pk_product: In(ids) },
-    });
-    const foundIds = new Set(found.map((p) => p.pk_product));
-    const missing = ids.filter((id) => !foundIds.has(id));
-    if (missing.length > 0) {
-      throw new NotFoundException(`Products not found: ${missing.join(', ')}`);
-    }
   }
 }
