@@ -1,3 +1,5 @@
+import { IsNull } from 'typeorm';
+
 import { NotFoundException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -44,7 +46,7 @@ describe('ProductsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all products', async () => {
+    it('should return all non-deleted products', async () => {
       const products = [
         { pk_product: 'id-1', tx_name: 'A' },
         { pk_product: 'id-2', tx_name: 'B' },
@@ -53,7 +55,9 @@ describe('ProductsService', () => {
 
       const result = await makeService().findAll();
 
-      expect(mockRepo.find).toHaveBeenCalled();
+      expect(mockRepo.find).toHaveBeenCalledWith({
+        where: { ts_deleted_at: IsNull() },
+      });
       expect(result).toEqual(products);
     });
   });
@@ -65,7 +69,10 @@ describe('ProductsService', () => {
 
       const result = await makeService().findOne('id-1');
 
-      expect(mockRepo.findOneBy).toHaveBeenCalledWith({ pk_product: 'id-1' });
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({
+        pk_product: 'id-1',
+        ts_deleted_at: IsNull(),
+      });
       expect(result).toEqual(product);
     });
 
@@ -119,13 +126,21 @@ describe('ProductsService', () => {
   });
 
   describe('remove', () => {
-    it('should remove an existing product', async () => {
-      mockRepo.findOneBy.mockResolvedValue({ pk_product: 'id-1' });
-      mockRepo.remove.mockResolvedValue(undefined);
+    it('should soft-delete an existing product', async () => {
+      const product = { pk_product: 'id-1', ts_deleted_at: null };
+      mockRepo.findOneBy.mockResolvedValue(product);
+      mockRepo.save.mockResolvedValue({
+        ...product,
+        ts_deleted_at: new Date(),
+      });
 
       await makeService().remove('id-1');
 
-      expect(mockRepo.remove).toHaveBeenCalled();
+      expect(mockRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ts_deleted_at: expect.any(Date),
+        }),
+      );
     });
 
     it('should throw NotFoundException for unknown product', async () => {
@@ -146,6 +161,10 @@ describe('ProductsService', () => {
       await expect(
         makeService().validateIds(['id-1', 'id-2']),
       ).resolves.toBeUndefined();
+
+      const callArgs = mockRepo.find.mock.calls[0][0];
+      expect(callArgs.select).toEqual({ pk_product: true });
+      expect(callArgs.where.ts_deleted_at).toEqual(IsNull());
     });
 
     it('should throw NotFoundException listing missing IDs', async () => {

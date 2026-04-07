@@ -182,7 +182,7 @@ describe('Products (e2e)', () => {
   });
 
   describe('DELETE /products/:id', () => {
-    it('should delete a product', async () => {
+    it('should soft delete a product', async () => {
       const product = await productRepo.save(
         productRepo.create({
           tx_name: 'To Delete',
@@ -190,10 +190,51 @@ describe('Products (e2e)', () => {
         }),
       );
 
-      return request(app.getHttpServer())
+      await request(app.getHttpServer())
         .delete(`/products/${product.pk_product}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(204);
+
+      const deleted = await productRepo.findOne({
+        where: { pk_product: product.pk_product },
+      });
+      expect(deleted).not.toBeNull();
+      expect(deleted!.ts_deleted_at).not.toBeNull();
+    });
+
+    it('should not return soft-deleted products in list', async () => {
+      const product = await productRepo.save(
+        productRepo.create({
+          tx_name: 'Will be deleted',
+          nr_price: 50,
+        }),
+      );
+
+      product.ts_deleted_at = new Date();
+      await productRepo.save(product);
+
+      return request(app.getHttpServer())
+        .get('/products')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(200)
+        .expect([]);
+    });
+
+    it('should return 404 when getting a soft-deleted product', async () => {
+      const product = await productRepo.save(
+        productRepo.create({
+          tx_name: 'Will be deleted',
+          nr_price: 50,
+        }),
+      );
+
+      product.ts_deleted_at = new Date();
+      await productRepo.save(product);
+
+      return request(app.getHttpServer())
+        .get(`/products/${product.pk_product}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(404);
     });
 
     it('should return 404 when deleting non-existent product', () => {
