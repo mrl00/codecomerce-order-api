@@ -21,8 +21,8 @@
 
 ## Bug Fixes
 
-- [ ] Fix `AuthGuard` null header crash — `request.headers['authorization']` can be `undefined`, causing `.split()` to throw (`src/auth/auth.guard.ts:31`)
-- [ ] Fix order controller `findOne` — `client_id` parameter is always `undefined`, should use `@Req() req: Request` and `req['user'].subscriber` (`src/orders/orders.controller.ts:39`)
+- [x] Fix `AuthGuard` null header crash — `request.headers['authorization']` can be `undefined`, causing `.split()` to throw (`src/auth/auth.guard.ts:31`)
+- [x] Fix order controller `findOne` — `client_id` parameter is always `undefined`, should use `@Req() req: Request` and `req['user'].subscriber` (`src/orders/orders.controller.ts:39`)
 
 ## Improvements
 
