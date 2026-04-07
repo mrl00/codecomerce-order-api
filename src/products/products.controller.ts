@@ -9,10 +9,12 @@ import {
   Res,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { GetProductsQueryDto } from './dto/get-products.dto';
 import type { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -31,8 +33,8 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const products = await this.productsService.findAll();
+  async findAll(@Query() query: GetProductsQueryDto, @Res() res: Response) {
+    const products = await this.productsService.findAll(query);
     res.status(HttpStatus.OK).json(products);
   }
 

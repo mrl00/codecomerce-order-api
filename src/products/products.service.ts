@@ -1,9 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Not,
+  Repository,
+} from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { GetProductsQueryDto } from './dto/get-products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -22,8 +33,21 @@ export class ProductsService {
     return this.repo.save(product);
   }
 
-  findAll() {
-    return this.repo.find({ where: { ts_deleted_at: IsNull() } });
+  findAll(query?: GetProductsQueryDto) {
+    const where: FindOptionsWhere<Product> = { ts_deleted_at: IsNull() };
+
+    if (query?.name) {
+      (where as any).tx_name = Like(`%${query.name}%`);
+    }
+    if (query?.minPrice !== undefined && query?.maxPrice !== undefined) {
+      (where as any).nr_price = Between(query.minPrice, query.maxPrice);
+    } else if (query?.minPrice !== undefined) {
+      (where as any).nr_price = MoreThanOrEqual(query.minPrice);
+    } else if (query?.maxPrice !== undefined) {
+      (where as any).nr_price = LessThanOrEqual(query.maxPrice);
+    }
+
+    return this.repo.find({ where });
   }
 
   async findOne(id: string) {
