@@ -18,7 +18,7 @@ export class OrdersService {
     private readonly productRepo: Repository<Product>,
   ) { }
 
-  async create(dto: CreateOrderDto) {
+  async create(dto: CreateOrderDto & { client_id: string }) {
     const productIds = dto.items.map((item) => item.product_id);
     await this.validateProductIds(productIds);
 
@@ -59,23 +59,26 @@ export class OrdersService {
     });
   }
 
-  findAll() {
+  findAll(client_id: string) {
     return this.orderRepo.find({
+      where: { fk_client: client_id },
+      order: { ts_created_at: 'DESC' },
       relations: ['order_items', 'order_items.product'],
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, client_id: string) {
     const order = await this.orderRepo.findOne({
-      where: { pk_order: id },
+      where: { pk_order: id, fk_client: client_id },
+      order: { ts_created_at: 'DESC' },
       relations: ['order_items', 'order_items.product'],
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
-  async updateStatus(id: string, dto: UpdateOrderStatusDto) {
-    const order = await this.findOne(id);
+  async updateStatus(id: string, dto: UpdateOrderStatusDto, client_id: string) {
+    const order = await this.findOne(id, client_id);
     order.tx_status = dto.status as OrderStatus;
     order.ts_updated_at = new Date();
     return this.orderRepo.save(order);
