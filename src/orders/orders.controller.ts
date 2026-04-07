@@ -7,39 +7,60 @@ import {
   Param,
   Res,
   HttpStatus,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import {
-  CreateOrderDto,
-  UpdateOrderStatusDto,
-} from './dto/create-order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
 import type { Response } from 'express';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  async create(@Body() createOrderDto: CreateOrderDto, @Res() res: Response) {
-    const order = await this.ordersService.create(createOrderDto);
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const order = await this.ordersService.create({
+      ...createOrderDto,
+      client_id: req['user'].subscriber,
+    });
     res.status(HttpStatus.CREATED).json(order);
   }
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const orders = await this.ordersService.findAll();
+  async findAll(@Req() req: Request, @Res() res: Response) {
+    const orders = await this.ordersService.findAll(req['user'].subscriber);
     res.status(HttpStatus.OK).json(orders);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Res() res: Response) {
-    const order = await this.ordersService.findOne(id);
+  async findOne(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string,
+  ) {
+    const order = await this.ordersService.findOne(id, req['user'].subscriber);
     res.status(HttpStatus.OK).json(order);
   }
 
   @Patch(':id')
-  async updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto, @Res() res: Response) {
-    const order = await this.ordersService.updateStatus(id, dto);
+  async updateStatus(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ) {
+    const order = await this.ordersService.updateStatus(
+      id,
+      dto,
+      req['user'].subscriber,
+    );
     res.status(HttpStatus.OK).json(order);
   }
 }

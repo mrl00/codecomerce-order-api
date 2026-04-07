@@ -21,10 +21,6 @@ export class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
-  @IsString()
-  @IsNotEmpty()
-  client_id: string;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
