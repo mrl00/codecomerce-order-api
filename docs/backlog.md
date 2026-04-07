@@ -45,7 +45,7 @@
 
 ## Features
 
-- [ ] Add user entity with TypeORM (currently hardcoded array in `auth.service.ts`)
+- [x] Add user entity with TypeORM
 - [ ] Add user registration endpoint (`POST /auth/register`)
 - [ ] Product search/filtering (by name, price range)
 - [ ] Pagination for product and order list endpoints
