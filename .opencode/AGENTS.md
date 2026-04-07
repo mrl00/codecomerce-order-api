@@ -15,13 +15,13 @@ Package manager is **pnpm**, not npm.
 
 ## Database
 
-- Connection configured via environment variables in `src/app.module.ts`. Defaults: `DB_HOST=localhost`, `DB_PORT=5432`, `DB_USERNAME=postgres`, `DB_PASSWORD=qwert`, `DB_DATABASE=nestjs`, `DB_SYNCHRONIZE=true`, `DB_LOGGING=false`.
+- Connection configured via `DATABASE_URL` environment variable (loaded by `@nestjs/config` from `.env`). Example: `postgres://postgres:qwert@localhost:5432/nestjs`.
 - `synchronize: true` — schema is auto-generated on startup. Do not add manual migrations.
 - Run `pnpm run fixture` to seed sample data (drops and recreates tables).
 
 ## Auth
 
-- JWT secret is hardcoded as `'secret'` in `src/auth/auth.module.ts`.
+- JWT secret loaded from `JWT_SECRET` environment variable via `ConfigService` in `src/auth/auth.module.ts`.
 - Users are hardcoded in `src/auth/auth.service.ts`: `admin`/`password` and `user`/`password`.
 - JWT payload contains `{ subscriber, username }`. The `subscriber` field is the client UUID used for order scoping.
 - `POST /auth/login` is the **only** unauthenticated endpoint. All product and order routes require `Authorization: Bearer <token>`.
