@@ -3,7 +3,7 @@
   "provider": {
     "alibaba": {
       "options": {
-        "maxRetries": 100
+        "maxRetries": 1000
       }
     }
   }
