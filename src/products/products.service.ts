@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -23,11 +23,14 @@ export class ProductsService {
   }
 
   findAll() {
-    return this.repo.find();
+    return this.repo.find({ where: { ts_deleted_at: IsNull() } });
   }
 
   async findOne(id: string) {
-    const product = await this.repo.findOneBy({ pk_product: id });
+    const product = await this.repo.findOneBy({
+      pk_product: id,
+      ts_deleted_at: IsNull(),
+    });
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }
@@ -44,14 +47,16 @@ export class ProductsService {
 
   async remove(id: string) {
     const product = await this.findOne(id);
-    await this.repo.remove(product);
+    product.ts_deleted_at = new Date();
+    product.ts_updated_at = new Date();
+    await this.repo.save(product);
   }
 
   async validateIds(ids: string[]) {
     if (ids.length === 0) return;
     const found = await this.repo.find({
       select: { pk_product: true },
-      where: { pk_product: In(ids) },
+      where: { pk_product: In(ids), ts_deleted_at: IsNull() },
     });
     const foundIds = new Set(found.map((p) => p.pk_product));
     const missing = ids.filter((id) => !foundIds.has(id));

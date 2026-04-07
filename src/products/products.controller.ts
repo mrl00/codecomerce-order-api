@@ -55,6 +55,6 @@ export class ProductsController {
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() res: Response) {
     await this.productsService.remove(id);
-    res.status(HttpStatus.NO_CONTENT).json(null);
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }

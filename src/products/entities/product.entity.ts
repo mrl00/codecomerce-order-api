@@ -23,6 +23,9 @@ export class Product {
   @Column({ default: () => 'CURRENT_TIMESTAMP', name: 'ts_updated_at' })
   ts_updated_at: Date;
 
+  @Column({ type: 'timestamp', name: 'ts_deleted_at', nullable: true })
+  ts_deleted_at: Date | null;
+
   // Serialization: expose API-friendly field names
   toJSON() {
     return {
@@ -33,6 +36,7 @@ export class Product {
       price: this.nr_price,
       created_at: this.ts_created_at,
       updated_at: this.ts_updated_at,
+      deleted_at: this.ts_deleted_at,
     };
   }
 }
