@@ -29,11 +29,9 @@ Package manager is **pnpm**, not npm.
 ## Architecture Gotchas
 
 - **Controllers use `@Res()` pattern** — responses are sent manually via `res.status().json()`. Do not return values directly from controller methods; it will cause double-send errors.
-- **Order controller bug** (`src/orders/orders.controller.ts:39`) — `findOne` declares `client_id: string` as a plain parameter but never receives it from `@Req()`. It is always `undefined`. Fix by adding `@Req() req: Request` and using `req['user'].subscriber`.
-- **Auth guard null header** (`src/auth/auth.guard.ts:31`) — `request.headers['authorization']` can be `undefined`, causing `.split()` to throw. Add a null check.
 - **`client_id` is never passed in request body for orders** — it is injected from the JWT `subscriber` claim in the controller (`src/orders/orders.controller.ts:28`).
 - **No DELETE endpoint for orders** — intentional design decision.
-- **`nr_idx` column** on `Order` entity is defined but never populated.
+- **`nr_idx` column** on `Order` entity is auto-incremented via `@Generated('increment')`.
 - **`validateProductIds` is consolidated** — `OrdersService` injects `ProductsService` and calls `validateIds()` (no duplication).
 
 ## Conventions
