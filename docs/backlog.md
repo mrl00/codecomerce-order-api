@@ -51,4 +51,4 @@
 - [ ] Product search/filtering (by name, price range)
 - [ ] Pagination for product and order list endpoints
 - [ ] Order cancellation logic (prevent cancelling COMPLETED orders)
-- [ ] Soft delete for products (instead of hard delete)
+- [x] Soft delete for products (instead of hard delete)
