@@ -30,7 +30,7 @@
 - [x] Move JWT secret to environment variable (currently `'secret'` in `auth.module.ts`)
 - [x] Consolidate duplicated `validateProductIds` — `OrdersService` now injects `ProductsService` and calls `validateIds()`
 - [x] Add DTO validation to `POST /auth/login` — created `LoginDto` with `@IsString()` and `@IsNotEmpty()` decorators
-- [ ] Add password hashing (currently plaintext comparison in `auth.service.ts`)
+- [x] Add password hashing (using bcrypt in `auth.service.ts`)
 - [ ] Populate `nr_idx` column on Order entity (defined but never set)
 - [ ] Add user registration endpoint (`POST /auth/register`)
 - [ ] Add user entity with TypeORM (currently hardcoded array in `auth.service.ts`)
