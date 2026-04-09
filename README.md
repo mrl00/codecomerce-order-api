@@ -4,6 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6)](https://www.typescriptlang.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-334155?logo=postgresql)](https://www.postgresql.org)
 [![Docker Publish](https://github.com/mrl00/codecomerce-order-api/actions/workflows/docker-publisher.yml/badge.svg)](https://github.com/mrl00/codecomerce-order-api/actions/workflows/docker-publisher.yml)
+[![CI](https://github.com/mrl00/codecomerce-order-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mrl00/codecomerce-order-api/actions/workflows/ci.yml)
 
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
