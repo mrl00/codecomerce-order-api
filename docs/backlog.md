@@ -290,7 +290,7 @@ Entities expose API-friendly field names via `toJSON()` methods (e.g., `pk_produ
 - Change `AppService.getHello()` to return `{ status: 'ok', timestamp: new Date().toISOString() }`.
 - Update `AppController.getHello()` return type accordingly.
 - Update `app.controller.spec.ts` to match the new return shape.
-- Optionally rename the method to `health()` for clarity.
+- Rename the method to `health()` for clarity.
 
 **Files to modify**:
 - `src/app.service.ts`
