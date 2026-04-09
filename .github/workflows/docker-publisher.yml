@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: codecomerce-order-api
+  IMAGE_NAME: codecommerce-order-api
 
 jobs:
   docker-publisher:
