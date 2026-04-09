@@ -3,6 +3,8 @@
 [![NestJS](https://img.shields.io/badge/NestJS-11.x-ea2845)](https://nestjs.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6)](https://www.typescriptlang.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-334155?logo=postgresql)](https://www.postgresql.org)
+[![Docker Publish](https://github.com/mrl00/codecomerce-order-api/actions/workflows/docker-publisher.yml/badge.svg)](https://github.com/mrl00/codecomerce-order-api/actions/workflows/docker-publisher.yml)
+
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 REST API for an e-commerce platform with product catalog and order management, built with NestJS, TypeORM, and PostgreSQL.
@@ -35,15 +37,15 @@ REST API for an e-commerce platform with product catalog and order management, b
 
 ## Tech Stack
 
-| Category     | Technology                          |
-|--------------|-------------------------------------|
-| Framework    | NestJS 11                           |
-| Language     | TypeScript 5                        |
-| ORM          | TypeORM 0.4+                        |
-| Database     | PostgreSQL 16                       |
-| Validation   | class-validator, class-transformer  |
-| Testing      | Jest (unit), Hurl (integration)     |
-| Package mgr  | pnpm                                |
+| Category    | Technology                         |
+| ----------- | ---------------------------------- |
+| Framework   | NestJS 11                          |
+| Language    | TypeScript 5                       |
+| ORM         | TypeORM 0.4+                       |
+| Database    | PostgreSQL 16                      |
+| Validation  | class-validator, class-transformer |
+| Testing     | Jest (unit), Hurl (integration)    |
+| Package mgr | pnpm                               |
 
 ## Prerequisites
 
@@ -67,15 +69,15 @@ pnpm install
 
 The database connection is configured in `src/app.module.ts`. Update the connection parameters to match your local PostgreSQL instance:
 
-| Parameter  | Description    | Default      | Example                                    |
-|------------|----------------|--------------|--------------------------------------------|
-| type       | Database type  | `postgres`   | `postgres`                                 |
-| host       | Database host  | `localhost`  | `127.0.0.1` or `db.internal`               |
-| port       | Database port  | `5432`       | `5432`                                     |
-| username   | Database user  | `postgres`   | `app_user`                                 |
-| password   | User password  | `qwert`      | `s3cure_p@ss`                              |
-| database   | Database name  | `nestjs`     | `ecommerce_db`                             |
-| synchronize| Auto-migrate   | `true`       | `true` (dev) / `false` (prod)              |
+| Parameter   | Description   | Default     | Example                       |
+| ----------- | ------------- | ----------- | ----------------------------- |
+| type        | Database type | `postgres`  | `postgres`                    |
+| host        | Database host | `localhost` | `127.0.0.1` or `db.internal`  |
+| port        | Database port | `5432`      | `5432`                        |
+| username    | Database user | `postgres`  | `app_user`                    |
+| password    | User password | `qwert`     | `s3cure_p@ss`                 |
+| database    | Database name | `nestjs`    | `ecommerce_db`                |
+| synchronize | Auto-migrate  | `true`      | `true` (dev) / `false` (prod) |
 
 Schema is auto-generated on startup via `synchronize: true`. Set this to `false` in production and manage schema changes with migrations.
 
@@ -297,8 +299,16 @@ POST /orders
   "total": 299700,
   "status": "PENDING",
   "items": [
-    { "product_id": "550e8400-e29b-41d4-a716-446655440000", "quantity": 2, "price": 99900 },
-    { "product_id": "550e8400-e29b-41d4-a716-446655440001", "quantity": 1, "price": 100000 }
+    {
+      "product_id": "550e8400-e29b-41d4-a716-446655440000",
+      "quantity": 2,
+      "price": 99900
+    },
+    {
+      "product_id": "550e8400-e29b-41d4-a716-446655440001",
+      "quantity": 1,
+      "price": 100000
+    }
   ],
   "created_at": "2025-03-15T12:00:00.000Z",
   "updated_at": "2025-03-15T12:00:00.000Z"
@@ -350,7 +360,11 @@ GET /orders/:id
   "total": 299700,
   "status": "PENDING",
   "items": [
-    { "product_id": "550e8400-e29b-41d4-a716-446655440000", "quantity": 2, "price": 99900 }
+    {
+      "product_id": "550e8400-e29b-41d4-a716-446655440000",
+      "quantity": 2,
+      "price": 99900
+    }
   ],
   "created_at": "2025-03-15T12:00:00.000Z",
   "updated_at": "2025-03-15T12:00:00.000Z"
@@ -433,14 +447,14 @@ tests/
 
 Tables and columns follow a semantic prefix convention shared across services:
 
-| Prefix | Meaning             | Examples                                    |
-|--------|---------------------|---------------------------------------------|
-| `tb_`  | Table name          | `tb_product`, `tb_order`, `tb_order_item`  |
-| `pk_`  | Primary key (UUID)  | `pk_product`, `pk_order`, `pk_order_item`  |
-| `tx_`  | Text column         | `tx_name`, `tx_description`, `tx_status`   |
-| `nr_`  | Numeric column      | `nr_price`, `nr_quantity`, `nr_total`      |
-| `fk_`  | Foreign key         | `fk_client`, `fk_product`, `fk_order`      |
-| `ts_`  | Timestamp           | `ts_created_at`, `ts_updated_at`           |
+| Prefix | Meaning            | Examples                                  |
+| ------ | ------------------ | ----------------------------------------- |
+| `tb_`  | Table name         | `tb_product`, `tb_order`, `tb_order_item` |
+| `pk_`  | Primary key (UUID) | `pk_product`, `pk_order`, `pk_order_item` |
+| `tx_`  | Text column        | `tx_name`, `tx_description`, `tx_status`  |
+| `nr_`  | Numeric column     | `nr_price`, `nr_quantity`, `nr_total`     |
+| `fk_`  | Foreign key        | `fk_client`, `fk_product`, `fk_order`     |
+| `ts_`  | Timestamp          | `ts_created_at`, `ts_updated_at`          |
 
 Entities expose API-friendly field names via `toJSON()` (`pk_product` → `id`, `tx_name` → `name`, etc.).
 
