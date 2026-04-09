@@ -16,7 +16,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-  ) {}
+  ) { }
 
   async login(username: string, password: string) {
     const user = await this.userRepo.findOneBy({ tx_username: username });
@@ -41,7 +41,7 @@ export class AuthService {
       throw new ConflictException('Username already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(dto.password, 12);
     const user = this.userRepo.create({
       tx_username: dto.username,
       tx_password: hashedPassword,
