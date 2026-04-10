@@ -22,12 +22,17 @@ const mockProductRepo = {
 };
 const mockProductsService = { validateIds: jest.fn() };
 
+const mockAmqpConnection = {
+  publish: jest.fn(),
+};
+
 function makeService(): OrdersService {
   return new OrdersService(
     mockOrderRepo as any,
     mockOrderItemRepo as any,
     mockProductRepo as any,
     mockProductsService as any,
+    mockAmqpConnection as any,
   );
 }
 
