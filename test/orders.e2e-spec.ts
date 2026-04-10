@@ -8,6 +8,9 @@ import { Product } from '../src/products/entities/product.entity';
 import { Order, OrderStatus } from '../src/orders/entities/order.entity';
 import { OrderItem } from '../src/orders/entities/order-item.entity';
 import { Repository } from 'typeorm';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
+import { MockRabbitmqModule } from './mocks/rabbitmq.mock';
 
 describe('Orders (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +25,9 @@ describe('Orders (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    }).overrideModule(RabbitmqModule)
+      .useModule(MockRabbitmqModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
@@ -79,6 +84,7 @@ describe('Orders (e2e)', () => {
             { product_id: pA.pk_product, quantity: 2 },
             { product_id: pB.pk_product, quantity: 1 },
           ],
+          payment_token: 'payment-token',
         })
         .expect(201)
         .expect((res) => {
@@ -107,6 +113,7 @@ describe('Orders (e2e)', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           items: [{ product_id: fakeUuid, quantity: 1 }],
+          payment_token: 'payment-token',
         })
         .expect(404);
     });
@@ -115,7 +122,7 @@ describe('Orders (e2e)', () => {
       return request(app.getHttpServer())
         .post('/orders')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ items: [] })
+        .send({ items: [], payment_token: 'payment-token' })
         .expect(201)
         .expect((res) => {
           expect(res.body.total).toBe(0);
