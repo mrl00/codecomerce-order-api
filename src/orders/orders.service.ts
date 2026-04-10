@@ -7,6 +7,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/create-order.dto';
 import { Product } from 'src/products/entities/product.entity';
 import { ProductsService } from 'src/products/products.service';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class OrdersService {
@@ -18,7 +19,8 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly productsService: ProductsService,
-  ) {}
+    private readonly amqpConnection: AmqpConnection,
+  ) { }
 
   async create(dto: CreateOrderDto & { client_id: string }) {
     const productIds = dto.items.map((item) => item.product_id);
@@ -55,10 +57,18 @@ export class OrdersService {
     );
     await this.orderItemRepo.save(orderItems);
 
-    return this.orderRepo.findOne({
+    const savedOrder = await this.orderRepo.findOne({
       where: { pk_order: saved.pk_order },
       relations: ['order_items', 'order_items.product'],
     });
+
+    await this.amqpConnection.publish('orders', 'OrderCreated', {
+      order_id: savedOrder?.pk_order,
+      total,
+      payment_token: dto.payment_token,
+    });
+
+    return savedOrder;
   }
 
   findAll(client_id: string) {

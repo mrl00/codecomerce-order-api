@@ -6,6 +6,8 @@ import { AppModule } from './../src/app.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Product } from '../src/products/entities/product.entity';
 import { Repository } from 'typeorm';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
+import { MockRabbitmqModule } from './mocks/rabbitmq.mock';
 
 describe('Products (e2e)', () => {
   let app: INestApplication;
@@ -18,7 +20,10 @@ describe('Products (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(RabbitmqModule)
+      .useModule(MockRabbitmqModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(

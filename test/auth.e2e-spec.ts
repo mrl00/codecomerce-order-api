@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../src/auth/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { RabbitmqModule } from 'src/rabbitmq/rabbitmq.module';
+import { MockRabbitmqModule } from './mocks/rabbitmq.mock';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
@@ -18,7 +19,10 @@ describe('Auth (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideModule(RabbitmqModule)
+      .useModule(MockRabbitmqModule)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
