@@ -22,12 +22,17 @@ const mockProductRepo = {
 };
 const mockProductsService = { validateIds: jest.fn() };
 
+const mockAmqpConnection = {
+  publish: jest.fn(),
+};
+
 function makeService(): OrdersService {
   return new OrdersService(
     mockOrderRepo as any,
     mockOrderItemRepo as any,
     mockProductRepo as any,
     mockProductsService as any,
+    mockAmqpConnection as any,
   );
 }
 
@@ -38,6 +43,7 @@ describe('OrdersService', () => {
     it('should create order with auto-calculated total from product prices', async () => {
       const dto = {
         client_id: 'client-1',
+        payment_token: 'payment-token',
         items: [
           { product_id: 'p1', quantity: 2 },
           { product_id: 'p2', quantity: 1 },
@@ -88,6 +94,7 @@ describe('OrdersService', () => {
     it('should throw when products do not exist', async () => {
       const dto = {
         client_id: 'client-1',
+        payment_token: 'payment-token',
         items: [{ product_id: 'nonexistent', quantity: 1 }],
       };
 
