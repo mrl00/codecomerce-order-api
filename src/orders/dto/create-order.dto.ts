@@ -6,6 +6,7 @@ import {
   Min,
   ValidateNested,
   IsPositive,
+  MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -25,6 +26,11 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
+
+  @MaxLength(255)
+  @IsString()
+  @IsNotEmpty()
+  payment_token: string;
 }
 
 export class UpdateOrderStatusDto {
